@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <meta charset="UTF-8">
+    <title>达内VRD中心产品展示</title>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" type="text/css"
+          href="bootstrap3/css/bt3.css">
+    <link rel="stylesheet" type="text/css"
+          href="bootstrap3/font-awesome-4.7.0/css/font-awesome.css" />
+    <style type="text/css">
+        body{
+            background-color: #2e2e2e;
+            /*让body里面的内容往下移动20px*/
+            padding-top: 20px;/*让图片往上移动*/
+        }
+        .navbar{
+            background-color: black;
+            border: none;
+        }
+        #logo_img{
+            position: relative;
+            bottom: 12px;
+        }
+        /*搜索框相关样式*/
+        #search_div>input{
+            height: 30px;
+            border-radius: 30px;
+            background-color: #383838;
+            padding: 10px 20px;
+            color: #a9a8a8;
+            border: none;
+            position: relative;
+            top: 10px;
+            outline: none;/*去掉点击后出现的边框*/
+        }
+        /*搜索按钮样式*/
+        #search_div>button{
+            /*让背景透明*/
+            background-color: rgba(0,0,0,0);
+            color: gray;
+            border: none;
+            position: relative;
+            top: 13px;
+            right: 50px;
+        }
+
+        #myul>li>a:hover{
+            color: #ffc600;
+        }
+        /*瀑布流相关样式*/
+        .grid-item{
+            width: 200px;/*每个元素的宽度*/
+            margin: 0 10px 10px 0;/*给元素添加右下外边距*/
+        }
+        /*浏览最多样式*/
+        .list-group-item{
+            background-color: black;
+            border: none;
+        }
+        .list-head{
+            background-color: #ffc600;
+            border: none;
+        }
+        .media-body>a>h4{
+            color: #ffc600;
+        }
+        #myCarousel{
+            margin-bottom: 10px;
+        }
+        /*蓝色条样式*/
+        .floatView{
+            width: 100%;
+            height: 40px;
+            background-color: #0aa1ed;
+            color: #ffc600;
+            text-align: center;
+            position: absolute;/*脱离文档流*/
+            bottom: 0;/*距离上级元素下面为0  就是让元素显示到上级元素最底下*/
+            display: none;/*让元素隐藏*/
+        }
+        .floatView>p{
+            margin: 0;/*去掉自带上下边距*/
+            font-size: 12px;
+        }
+        /*缩放动画相关*/
+        img{
+            transition-duration: 1s;/*动画持续时间1s*/
+        }
+        img:hover{
+            transform: scale(1.2);/*鼠标移入缩放1.2倍*/
+        }
+        .grid-item{/*缩放动画时控制图片在上级元素之内*/
+            overflow: hidden;
+        }
+        /*设置主体区域字体颜色*/
+        .col-md-9{
+            color: #ffc600;
+        }
+    </style>
+</head>
+<body>
+<header class="container"><!--class为了居中-->
+    <!--顶部导航条-->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img id="logo_img" alt="Brand" src="images/logo.png">
+                </a>
+            </div>
+            <!--无序列表-->
+            <ul id="myul" class="nav navbar-nav" >
+                <li>
+                    <a href="home">首页</a>
+                </li>
+                <li th:each="category:${cList}">
+                    <a th:text="${category.name}" th:href="'home?id='+${category.id}">手绘</a>
+                </li>
+                <li>
+                    <!--搜索框的li-->
+                    <form action="home">
+                        <div id="search_div">
+                            <input type="text" placeholder="Search" name="keyword">
+                            <!--放大镜样式的搜索按钮-->
+                            <button type="submit" class="glyphicon glyphicon-search"></button>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+            <!--右侧导航条-->
+            <ul class="nav navbar-nav navbar-right">
+                <!--th:if用来控制元素是否显示  满足后面的条件的话 显示  反之则隐藏-->
+                <li th:if="${user}==null">
+                    <a class="fa fa-user-circle-o" href="login">管理员入口</a>
+                </li>
+
+                <li th:if="${user}!=null">
+                    <a class="fa fa-user-circle-o" href="showsend">发布作品</a>
+                </li>
+                <li th:if="${user}!=null">
+                    <a class="fa fa-user-circle-o" href="login">轮播图</a>
+                </li>
+                <li th:if="${user}!=null">
+                    <a class="fa fa-user-circle-o" href="logout">登出</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<!--主体内容区域-->
+<section>
+    <div class="container">
+
+        <!--通过栅格系统将页面分为9:3两部分-->
+        <div class="row">
+            <div class="col-md-9">
+                <!--文章详情开始-->
+                <h2 th:text="${product.title}" class="page-header"></h2>
+                <div>
+                    <span th:text="${product.author}+'发布于'+${product.time}"></span>
+                <span class="pull-right"><!--pull-right显示到右侧-->
+                    <span class="fa fa-eye" th:text="${product.viewCount}"></span>
+                    <span class="fa fa-thumbs-o-up" th:text="${product.likeCount}"></span>
+                </span>
+                </div>
+                <!--按钮相关-->
+                <div class="text-center">
+                    <a th:href="'like?id='+${product.id}" class="btn btn-info">给作品点赞</a>
+                    <a th:if="${user}!=null " th:href="'delete?id='+${product.id}" class="btn btn-danger">删除</a>
+                </div>
+                <!--作品图片 img-responsive响应式图片 center-block让图片居中-->
+                <img th:src="${product.imgUrl}" class="img-responsive center-block">
+                <!--作品详情-->
+                <p th:text="${product.intro}"class="text-center"></p>
+                <!--文章详情结束-->
+            </div>
+            <div class="col-md-3">
+                <!--浏览最多开始-->
+                <ul class="list-group">
+                    <li class="list-group-item  list-head" >
+                        <h4>
+                            <span class="fa fa-eye">浏览最多</span>
+                        </h4>
+                    </li>
+                    <li class="list-group-item">
+                        <!-- 左对齐 -->
+                        <div th:each="p:${vList}" class="media">
+                            <div class="media-left">
+                                <a th:href="'detail?id='+${p.id}">
+                                    <img th:src="${p.imgUrl}" class="media-object" style="width:50px;height:50px">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <a th:href="'detail?id='+${p.id}">
+                                    <h4  th:text="${p.title}" class="media-heading"></h4>
+                                </a>
+                                <p th:text="${p.intro}"></p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <!--浏览最多结束-->
+                <!--最受欢迎开始-->
+                <ul class="list-group">
+                    <li class="list-group-item  list-head" >
+                        <h4>
+                            <span class="fa fa-thumbs-o-up">最受欢迎</span>
+                        </h4>
+                    </li>
+                    <li class="list-group-item">
+                        <!-- 左对齐 -->
+                        <div th:each="p:${lList}" class="media">
+                            <div class="media-left">
+                                <a th:href="'detail?id='+${p.id}">
+                                    <img th:src="${p.imgUrl}" class="media-object" style="width:50px;height:50px">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <a th:href="'detail?id='+${p.id}">
+                                    <h4  th:text="${p.title}" class="media-heading"></h4>
+                                </a>
+                                <p th:text="${p.intro}"></p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <!--最受欢迎结束-->
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+<script type="text/javascript" src="bootstrap3/jquery.min.js"></script>
+<script type="text/javascript" src="bootstrap3/js/bootstrap.js"></script>
+<script type="text/javascript" src="bootstrap3/js/holder.js"></script>
+<script type="text/javascript" src="bootstrap3/js/html5shiv.min.js"></script>
+<script type="text/javascript" src="bootstrap3/js/css3-mediaqueries.js"></script>
+<script type="text/javascript" src="bootstrap3/js/respond.min.js"></script>
+<!--引入瀑布流插件相关文件-->
+<script src="js/imagesloaded.pkgd.js"></script>
+<script src="js/masonry.pkgd.min.js"></script>
+<script>
+    // 取出轮播图的第一个项目让其class值为item active  eq(0)取出选择器中的第一个
+    $(".item").eq(0).attr("class","item active");
+    //让轮播图开始移动
+    $("#myCarousel").carousel("cycle");
+
+    //对瀑布流进行初始化操作
+    $(".grid").masonry({
+        itemSelector:".grid-item",//告诉框架瀑布流中每个元素的选择器是什么
+        columnWidth:210 //告诉框架每个元素所占的显示宽度是多少
+    });
+    //在图片加载完成之后 对瀑布流做布局操作
+    $(".grid").imagesLoaded().progress(function () {
+        $(".grid").masonry("layout");//让瀑布流框架重新调整布局
+    });
+
+    //动画相关代码
+    /*让所有的蓝色条隐藏*/
+    //$(".floatView").fadeOut();
+    /*给瀑布流里面的每一个元素添加鼠标移入移出事件*/
+    $(".grid-item").hover(function (){//鼠标移入
+        //把之前未做完的动画停止
+        //得到移入元素里面的蓝色条
+        $(this).children("div").stop().fadeIn(500);
+    },function (){//鼠标移出
+        $(this).children("div").stop().fadeOut(500);
+    })
+
+</script>
+</html>
+

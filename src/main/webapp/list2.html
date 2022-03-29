@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        img{
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">作品列表</h1>
+<div id="list_div"></div>
+<button>加载更多</button>
+<script src="bootstrap3/jquery.min.js"></script>
+<script>
+    //给加载更多按钮添加点击事件
+    $("button").click(function (){
+        load();
+    })
+    function load(){
+//通过Ajax发出异步请求获取数据
+//type 代表请求方式   值为get/post
+//url  代表请求路径
+//data 代表发出请求时带的请求参数
+//success 代表请求成功时回调的方法
+        $.ajax({
+            type:"get",
+            url:"loadmore",
+            data:"count="+$("h3").length,
+            success:function (result) {
+                //把json字符串转成数组
+                let list = JSON.parse(result)
+                //遍历数组
+                for (let i = 0; i < list.length; i++) {
+                    let p = list[i];//得到每一个作品
+                    let h3 = $("<h3></h3>");
+                    let img = $("<img>");
+                    h3.text(p.title);
+                    img.attr("src",p.imgUrl);
+                    $("#list_div").append(h3);
+                    $("#list_div").append(img);
+
+                }
+            }
+        })
+    }
+    load();//页面加载完的时候先调用一次
+
+</script>
+</body>
+</html>

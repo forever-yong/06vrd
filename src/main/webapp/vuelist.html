@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div id="mydiv"><!--vue所管理的元素必须设置一个id 然后在vue对象中的el属性进行设置-->
+  <div v-for="p in list">
+    <h3 v-text="p.title"></h3>
+    <img v-bind:src="p.imgUrl">
+  </div>
+  <button @click="load()">加载更多</button>
+</div>
+
+<script src="js/vue.js"></script>
+<script src="bootstrap3/jquery.min.js"></script>
+<script>
+  let app = new Vue({
+    el:"#mydiv",
+    data:{
+      list:[]
+    },
+    created:function (){
+      //alert("页面加载完成!!!");
+      $.ajax({
+        type:"get",
+        url:"list",
+        data:"",
+        success:function (result){
+          //把查询到的结果直接交给vue的变量 此时页面会自己发生改变
+          app.list=result;
+        }
+      })
+    },
+    methods:{
+      load:function (){
+        $.ajax({
+          type:"get",
+          url:"loadmore",
+          data:"count="+$("h3").length,//把已有的数量传递进去
+          success:function (result){
+            //把接收到的json字符串转成数组
+            let newList = JSON.parse(result);
+            //把查询到的新的数组添加到原来数组中
+            //concat方法是将两个数组连接到一起  但只有返回值是连接到一起的
+            //原数组没变
+            app.list=app.list.concat(newList);
+
+          }
+        })
+      }
+    }
+  })
+</script>
+</body>
+</html>
